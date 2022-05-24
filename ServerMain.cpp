@@ -89,7 +89,7 @@ int main() {
 	char service[NI_MAXSERV];	//Service (port) being connected on
 
 	ZeroMemory(host, NI_MAXHOST);	//target, size
-	ZeroMemory(service, NI_MAXHOST);	//target, size
+	ZeroMemory(service, NI_MAXSERV);	//target, size
 
 	if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0) 
 	{
