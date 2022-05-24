@@ -2,8 +2,9 @@
 #include <iostream>
 #include "NolanNetworking.h"
 
-const int MAX_BUFFER_LENGTH = 4096; //Tutorial default was 4096
-const int PORT = 1738; 
+const int MAX_BUFFER_LENGTH = 4096, //Tutorial default was 4096
+		  PORT = 1738,
+		  MAX_DATE_LENGTH = 26;
 
 
 int main() {
@@ -88,17 +89,22 @@ int main() {
 	char host[NI_MAXHOST];		//Client's remote name
 	char service[NI_MAXSERV];	//Service (port) being connected on
 
-	ZeroMemory(host, NI_MAXHOST);	//target, size
+	ZeroMemory(host, NI_MAXHOST);		//target, size
 	ZeroMemory(service, NI_MAXSERV);	//target, size
+
+	//calculate dateTime
+	
 
 	if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0) 
 	{
-		std::cout << host << ": connected on port " << service << std::endl;
+		std::cout << host << ": connected on port " << service
+				  << " at " << std::endl;
 	}
 	else //get ip of host if can't find name
 	{
 		inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
-		std::cout << host << ": connected on port " << service << std::endl;
+		std::cout << host << ": connected on port " << service
+				  << " at " << std::endl;
 	}
 
 	/* Close listening Socket
@@ -110,7 +116,10 @@ int main() {
 	/* While: acceptand echo message back to cleitn
 	*
 	*/
-	char buf[MAX_BUFFER_LENGTH];
+	time_t result = time(NULL); //setting up time stuff
+
+	char buf[MAX_BUFFER_LENGTH],
+		 timeBuffer[MAX_DATE_LENGTH];
 
 	while (true)//Run server forever 
 	{
@@ -120,15 +129,23 @@ int main() {
 		int bytesReceived = recv(clientSocket, buf, MAX_BUFFER_LENGTH, 0);
 		if (bytesReceived == SOCKET_ERROR) 
 		{
+			ctime_s(timeBuffer, sizeof(timeBuffer), &result);
+
 			std::cerr << "Error in recv(), exiting" << std::endl;
 			break;
 		}
 
 		if (bytesReceived == 0) 
 		{
-			std::cout << "client disconnected" << std::endl;
+			ctime_s(timeBuffer, sizeof(timeBuffer), &result);
+
+			std::cout << host << " has disconnected at ";
+			std::printf("%s", timeBuffer);
+			std::cout << std::endl;
 			break;
 		}
+
+		//Process input
 
 		//Echo back to client
 		send(clientSocket, buf, bytesReceived + 1, 0);//add for terminating string
