@@ -8,6 +8,6 @@ and also will hopefully have something cool to present for my interview!
 
 Connect with PuTTY or another ssh client using
 
-Host name: Name / ip of host
-Port: 1738
+Host name: Name / ip of host,
+Port: 1738, 
 Connection type: Raw
