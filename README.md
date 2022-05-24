@@ -14,3 +14,6 @@ Connection type: Raw
 
 Issues:
 Stack around buf and service get corrupted on exit
+
+My References for personal use:
+Time - https://en.cppreference.com/w/c/chrono/ctime
