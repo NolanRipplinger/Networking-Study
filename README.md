@@ -11,3 +11,6 @@ Connect with PuTTY or another ssh client using
 Host name: Name / ip of host,
 Port: 1738, 
 Connection type: Raw
+
+Issues:
+Stack around buf and service get corrupted on exit
