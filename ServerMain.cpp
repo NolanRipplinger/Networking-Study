@@ -3,20 +3,23 @@
 #include "NolanNetworking.h"
 
 const int MAX_BUFFER_LENGTH = 4096, //Tutorial default was 4096
-		  PORT = 1738,
-		  MAX_DATE_LENGTH = 26;
+PORT = 1738,
+MAX_DATE_LENGTH = 26;
 
 
 int main() {
 
+	char buf[MAX_BUFFER_LENGTH],
+		timeBuffer[MAX_DATE_LENGTH];
+
 	/* Initialize Winsock
-	* 
+	*
 	*/
 	WSADATA wsaData;
-	WORD ver = MAKEWORD(2,2);
+	WORD ver = MAKEWORD(2, 2);
 
 	int wsock = WSAStartup(ver, &wsaData);
-	if (wsock != 0) 
+	if (wsock != 0)
 	{
 		std::cerr << "Can't initialize winsock, quitting" << std::endl;
 		return 1;
@@ -24,12 +27,12 @@ int main() {
 
 
 	/* Create socket
-	* 
+	*
 	* AF:
 	*	AF_INET:	IPV4
 	*	AF_INET6:	IPV6
 	*	AF_BTH:		Bluetooth
-	* 
+	*
 	* Type:
 	*	SOCK_STREAM:	TCP
 	*			TCP is a "connection-oriented" protocol, in which
@@ -39,13 +42,13 @@ int main() {
 	*			UDP is a "connectionless" protocol with limited error checking
 	*			and recovery, less overhead; Data sent continuously regardless
 	*			of if there is a program listening
-	* 
+	*
 	*	SOCK_RAW:		Raw Socket
 	*			Raw sockets contain no header; carries a payload
-	* 
+	*
 	* Protocol:
 	*	0:
-	* 
+	*
 	*/
 	SOCKET listening = socket(AF_INET, SOCK_STREAM, 0);
 	if (listening == INVALID_SOCKET)
@@ -68,19 +71,19 @@ int main() {
 
 	/* Tell winsock that socket is for listening
 	*
-	*/ 
+	*/
 	listen(listening, SOMAXCONN);//max connections
 
 
 
 	/* Wait for a connection
 	*
-	*/ 
+	*/
 	sockaddr_in client;
 	int clientSize = sizeof(client);
 
 	SOCKET clientSocket = accept(listening, (sockaddr*)&client, &clientSize);
-	if (clientSocket == INVALID_SOCKET) 
+	if (clientSocket == INVALID_SOCKET)
 	{
 		std::cerr << "Can't accept socket, exiting" << std::endl;
 		return 3;
@@ -93,50 +96,52 @@ int main() {
 	ZeroMemory(service, NI_MAXSERV);	//target, size
 
 	//calculate dateTime
-	
+	ZeroMemory(timeBuffer, MAX_DATE_LENGTH); //Zero buffer before using
+	time_t result = time(NULL); //setting up time stuff
+	ctime_s(timeBuffer, sizeof(timeBuffer), &result);
 
-	if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0) 
+	if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
 	{
 		std::cout << host << ": connected on port " << service
-				  << " at " << std::endl;
+			<< " at ";
+		std::printf("%s", timeBuffer);
+		std::cout << std::endl;
 	}
 	else //get ip of host if can't find name
 	{
 		inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
 		std::cout << host << ": connected on port " << service
-				  << " at " << std::endl;
+			<< " at " << std::endl;
 	}
 
 	/* Close listening Socket
 	*
-	*/ 
+	*/
 	closesocket(listening);
 
 
 	/* While: acceptand echo message back to cleitn
 	*
 	*/
-	time_t result = time(NULL); //setting up time stuff
-
-	char buf[MAX_BUFFER_LENGTH],
-		 timeBuffer[MAX_DATE_LENGTH];
-
 	while (true)//Run server forever 
 	{
 		ZeroMemory(buf, MAX_BUFFER_LENGTH);
+		ZeroMemory(timeBuffer, MAX_DATE_LENGTH); //Zero buffer before using
 
 		//Wait for client to send data
 		int bytesReceived = recv(clientSocket, buf, MAX_BUFFER_LENGTH, 0);
-		if (bytesReceived == SOCKET_ERROR) 
+		if (bytesReceived == SOCKET_ERROR)
 		{
+			result = time(NULL); //setting up time stuff
 			ctime_s(timeBuffer, sizeof(timeBuffer), &result);
 
 			std::cerr << "Error in recv(), exiting" << std::endl;
 			break;
 		}
 
-		if (bytesReceived == 0) 
+		if (bytesReceived == 0)
 		{
+			result = time(NULL); //setting up time stuff
 			ctime_s(timeBuffer, sizeof(timeBuffer), &result);
 
 			std::cout << host << " has disconnected at ";
@@ -152,10 +157,10 @@ int main() {
 
 	}
 
-	
+
 	/* Close socket
 	*
-	*/ 
+	*/
 	closesocket(clientSocket);
 
 	/* Clean up winsock
