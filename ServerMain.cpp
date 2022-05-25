@@ -151,19 +151,19 @@ int main() {
 			break;
 		}
 
-		//Process input
-
-		//Echo back to client
+		/* Process Input
+		* 
+		* This will output the client's input
+		* unless it's a newline (\n) or carriage return (\r)
+		*/
 		if (buf[0] != '\r' && buf[0] != '\n') //Doesn't print newline server side 
 		{
 			ss << host << " says: \"" << buf << "\" - " << timeBuffer;
 			std::cout << ss.str();
 		}
-		
-		send(clientSocket, buf, bytesReceived + 1, 0);//add for terminating string
 
-		//Ignore newline
-		
+		//Echo back to client
+		send(clientSocket, buf, bytesReceived + 1, 0);//add for terminating string
 
 	}
 
