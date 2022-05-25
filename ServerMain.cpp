@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <iostream>
+#include <string>
+#include <sstream>
 #include "NolanNetworking.h"
 
 const int MAX_BUFFER_LENGTH = 4096, //Tutorial default was 4096
@@ -11,6 +13,7 @@ int main() {
 
 	char buf[MAX_BUFFER_LENGTH],
 		timeBuffer[MAX_DATE_LENGTH];
+	std::ostringstream ss;
 
 	/* Initialize Winsock
 	*
@@ -102,16 +105,14 @@ int main() {
 
 	if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
 	{
-		std::cout << host << " has connected on port " << service
-			<< " - ";
-		std::printf("%s", timeBuffer);
+		ss << host << " has connected on port " << service << " - " << timeBuffer;
+		std::cout << ss.str();
 	}
 	else //get ip of host if can't find name
 	{
 		inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
-		std::cout << host << ": connected on port " << service
-			<< " - ";
-		std::printf("%s", timeBuffer);
+		ss << host << ": connected on port " << service << " - " << timeBuffer;
+		std::cout << ss.str();
 	}
 
 	/* Close listening Socket
@@ -127,6 +128,8 @@ int main() {
 	{
 		ZeroMemory(buf, MAX_BUFFER_LENGTH);
 		ZeroMemory(timeBuffer, MAX_DATE_LENGTH); //Zero buffer before using
+		ss.str("");
+		ss.clear();
 
 
 		//Wait for client to send data
@@ -144,20 +147,22 @@ int main() {
 
 		if (bytesReceived == 0)
 		{
-
-			std::cout << host << " has disconnected - ";
-			std::printf("%s", timeBuffer);
-			std::cout << std::endl;
+			ss << host << " has disconnected - " << timeBuffer << std::endl;
+			std::cout << ss.str();
 			break;
 		}
 
 		//Process input
 
 		//Echo back to client
-		std::cout << host << " says: \"" << buf
-			<< "\" - ";
-		std::printf("%s", timeBuffer);
+		ss << host << " says: \"" << buf << "\" - " << timeBuffer;
+		std::cout << ss.str();
+		
+
 		send(clientSocket, buf, bytesReceived + 1, 0);//add for terminating string
+
+		//Ignore newline
+		//bytesReceived = recv(clientSocket, buf, MAX_BUFFER_LENGTH, 0);
 		
 
 	}
