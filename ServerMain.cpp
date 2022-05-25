@@ -154,14 +154,15 @@ int main() {
 		//Process input
 
 		//Echo back to client
-		ss << host << " says: \"" << buf << "\" - " << timeBuffer;
-		std::cout << ss.str();
+		if (buf[0] != '\r' && buf[0] != '\n') //Doesn't print newline server side 
+		{
+			ss << host << " says: \"" << buf << "\" - " << timeBuffer;
+			std::cout << ss.str();
+		}
 		
-
 		send(clientSocket, buf, bytesReceived + 1, 0);//add for terminating string
 
 		//Ignore newline
-		//bytesReceived = recv(clientSocket, buf, MAX_BUFFER_LENGTH, 0);
 		
 
 	}
