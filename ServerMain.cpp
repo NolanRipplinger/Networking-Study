@@ -102,16 +102,16 @@ int main() {
 
 	if (getnameinfo((sockaddr*)&client, sizeof(client), host, NI_MAXHOST, service, NI_MAXSERV, 0) == 0)
 	{
-		std::cout << host << ": connected on port " << service
-			<< " at ";
+		std::cout << host << " has connected on port " << service
+			<< " - ";
 		std::printf("%s", timeBuffer);
-		std::cout << std::endl;
 	}
 	else //get ip of host if can't find name
 	{
 		inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST);
 		std::cout << host << ": connected on port " << service
-			<< " at " << std::endl;
+			<< " - ";
+		std::printf("%s", timeBuffer);
 	}
 
 	/* Close listening Socket
@@ -123,17 +123,20 @@ int main() {
 	/* While: acceptand echo message back to cleitn
 	*
 	*/
-	while (true)//Run server forever 
+	while (true)//Run server until disconnect
 	{
 		ZeroMemory(buf, MAX_BUFFER_LENGTH);
 		ZeroMemory(timeBuffer, MAX_DATE_LENGTH); //Zero buffer before using
 
+
 		//Wait for client to send data
 		int bytesReceived = recv(clientSocket, buf, MAX_BUFFER_LENGTH, 0);
+
+		result = time(NULL); //setting up time stuff
+		ctime_s(timeBuffer, sizeof(timeBuffer), &result);
+
 		if (bytesReceived == SOCKET_ERROR)
 		{
-			result = time(NULL); //setting up time stuff
-			ctime_s(timeBuffer, sizeof(timeBuffer), &result);
 
 			std::cerr << "Error in recv(), exiting" << std::endl;
 			break;
@@ -141,10 +144,8 @@ int main() {
 
 		if (bytesReceived == 0)
 		{
-			result = time(NULL); //setting up time stuff
-			ctime_s(timeBuffer, sizeof(timeBuffer), &result);
 
-			std::cout << host << " has disconnected at ";
+			std::cout << host << " has disconnected - ";
 			std::printf("%s", timeBuffer);
 			std::cout << std::endl;
 			break;
@@ -153,7 +154,11 @@ int main() {
 		//Process input
 
 		//Echo back to client
+		std::cout << host << " says: \"" << buf
+			<< "\" - ";
+		std::printf("%s", timeBuffer);
 		send(clientSocket, buf, bytesReceived + 1, 0);//add for terminating string
+		
 
 	}
 
