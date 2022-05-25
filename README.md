@@ -13,7 +13,6 @@ Port: 1738,
 Connection type: Raw
 
 Issues:
-Server accepts end of line as second input.
 
 My References for personal use:
 Time - https://en.cppreference.com/w/c/chrono/ctime
