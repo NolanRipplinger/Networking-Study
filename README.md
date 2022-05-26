@@ -18,4 +18,7 @@ Connection type: Raw
 Issues:
 
 My References for personal use:
+
 Time - https://en.cppreference.com/w/c/chrono/ctime
+
+Convert char array to string - https://www.geeksforgeeks.org/convert-character-array-to-string-in-c/

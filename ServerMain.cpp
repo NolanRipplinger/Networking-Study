@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 #include "NolanNetworking.h"
 
 const int MAX_BUFFER_LENGTH = 4096, //Tutorial default was 4096
@@ -84,12 +85,16 @@ int main() {
 	sockaddr_in client;
 	int clientSize = sizeof(client);
 
+	std::cout << "Waiting for Connection\n";
+
 	SOCKET clientSocket = accept(listening, (sockaddr*)&client, &clientSize);
 	if (clientSocket == INVALID_SOCKET)
 	{
 		std::cerr << "Can't accept socket, exiting" << std::endl;
 		return 3;
 	}
+
+	std::cout << "Socket connection accepted\n";
 
 	char host[NI_MAXHOST];		//Client's remote name
 	char service[NI_MAXSERV];	//Service (port) being connected on
@@ -134,6 +139,8 @@ int main() {
 		//Wait for client to send data
 		int bytesReceived = recv(clientSocket, buf, MAX_BUFFER_LENGTH, 0);
 
+		std::string bufferString(buf);
+
 		result = time(NULL); //setting up time stuff
 		ctime_s(timeBuffer, sizeof(timeBuffer), &result);
 
@@ -158,12 +165,31 @@ int main() {
 		*/
 		if (buf[0] != '\r' && buf[0] != '\n') //Doesn't print newline server side 
 		{
-			ss << host << " says: \"" << buf << "\" - " << timeBuffer;
+			ss << host << " says: \"" << bufferString << "\" - " << timeBuffer;
 			std::cout << ss.str();
+			if (bufferString.at(0) == '!')
+			{
+				std::string command = bufferString.substr(1, bufferString.find(' ') - 1);
+				command = toLower(command);
+				std::string value;
+
+				if (hasSpace(bufferString))
+					value = bufferString.substr(bufferString.find(' '), bufferString.length());
+
+				if (!value.empty())
+					if (command == "reverse") 
+					{
+						std::cout << value << " backwards is: " << reverseString(value) << std::endl;
+					}
+				else
+					std::cout << "Variable: " << command << " requires a value." << std::endl;
+			}
+
+			
 		}
 
 		//Echo back to client
-		send(clientSocket, buf, bytesReceived + 1, 0);//add for terminating string
+		send(clientSocket, bufferString.c_str(), bytesReceived + 1, 0);//add for terminating string
 
 	}
 
