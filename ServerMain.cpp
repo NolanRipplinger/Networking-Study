@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 #include "NolanNetworking.h"
 
 const int MAX_BUFFER_LENGTH = 4096, //Tutorial default was 4096
@@ -169,16 +170,22 @@ int main() {
 			if (bufferString.at(0) == '!')
 			{
 				std::string command = bufferString.substr(1, bufferString.find(' ') - 1);
+				command = toLower(command);
 				std::string value;
 
 				if (hasSpace(bufferString))
 					value = bufferString.substr(bufferString.find(' '), bufferString.length());
 
 				if (!value.empty())
-					std::cout << "Variable: " << command << " = " << value << std::endl;
+					if (command == "reverse") 
+					{
+						std::cout << value << " backwards is: " << reverseString(value) << std::endl;
+					}
 				else
 					std::cout << "Variable: " << command << " requires a value." << std::endl;
 			}
+
+			
 		}
 
 		//Echo back to client

@@ -33,3 +33,21 @@ bool hasSpace(std::string s)
 
 	return false;
 }
+
+std::string toLower(std::string s) 
+{
+	for (int i = 0; i < s.length(); i++) 
+	{
+		s.at(i) = tolower(s.at(i));
+	}
+
+	return s;
+}
+
+std::string reverseString(std::string s) 
+{
+
+	reverse(s.begin(), s.end());
+
+	return s;
+}
